@@ -24,32 +24,85 @@ const webcamImg = document.getElementById('webcam-stream');
 const webcamPlaceholder = document.getElementById('webcam-placeholder');
 const stopWebcamBtn = document.getElementById('stop-webcam-btn');
 const demoDisplay = document.querySelector('.demo-display');
+const hiddenCanvas = document.getElementById('webcam-canvas');
+const ctx = hiddenCanvas.getContext('2d', { willReadFrequently: true });
 
-function startWebcam() {
-    webcamPlaceholder.classList.add('hidden');
-    webcamImg.classList.remove('hidden');
-    stopWebcamBtn.classList.remove('hidden');
+let ws = null;
+let mediaStream = null;
+let frameInterval = null;
+let isStreaming = false;
 
-    // Add glowing border to the container
-    demoDisplay.classList.add('glow');
+async function startWebcam() {
+    try {
+        // 1. Request webcam access from the browser
+        mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
 
-    // Add cache-busting query param to fix browser caching of the MJPEG stream
-    webcamImg.src = "/webcam-stream?" + new Date().getTime();
+        // Feed the native stream into a hidden video element to draw from
+        const hiddenVideo = document.createElement('video');
+        hiddenVideo.srcObject = mediaStream;
+        await hiddenVideo.play();
+
+        // 2. Open WebSocket connection
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/webcam`;
+        ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            isStreaming = true;
+            hiddenCanvas.width = hiddenVideo.videoWidth;
+            hiddenCanvas.height = hiddenVideo.videoHeight;
+
+            // Loop: Capture frame -> Send to server over WS
+            frameInterval = setInterval(() => {
+                if (ws.readyState === WebSocket.OPEN && isStreaming) {
+                    ctx.drawImage(hiddenVideo, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+                    const base64Frame = hiddenCanvas.toDataURL('image/jpeg', 0.8);
+                    ws.send(base64Frame);
+                }
+            }, 100); // 10 FPS
+        };
+
+        // 3. Receive processed frames from server and display them
+        ws.onmessage = (event) => {
+            webcamImg.src = event.data;
+        };
+
+        // UI Updates
+        webcamPlaceholder.classList.add('hidden');
+        webcamImg.classList.remove('hidden');
+        stopWebcamBtn.classList.remove('hidden');
+        demoDisplay.classList.add('glow');
+
+    } catch (err) {
+        console.error("Camera access denied or error:", err);
+        alert("Failed to access camera. Please ensure permissions are granted.");
+    }
 }
 
-async function stopWebcam() {
+function stopWebcam() {
+    isStreaming = false;
+
+    // Stop capturing frames
+    if (frameInterval) clearInterval(frameInterval);
+
+    // Close WebSocket
+    if (ws) {
+        ws.close();
+        ws = null;
+    }
+
+    // Shutdown hardware camera
+    if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+    }
+
+    // UI Updates
     webcamImg.src = "";
     webcamImg.classList.add('hidden');
     stopWebcamBtn.classList.add('hidden');
     webcamPlaceholder.classList.remove('hidden');
     demoDisplay.classList.remove('glow');
-
-    // Explicitly notify backend to kill the hardware feed
-    try {
-        await fetch('/stop-webcam', { method: 'POST' });
-    } catch (e) {
-        console.error("Failed to cleanly disconnect the webcam", e);
-    }
 }
 
 // Image Upload Logic

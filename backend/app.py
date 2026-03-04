@@ -2,10 +2,11 @@ import os
 import cv2
 import numpy as np
 import imutils
-from fastapi import FastAPI, UploadFile, File, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, BackgroundTasks, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+import base64
 from backend.detector import FaceDetector
 
 app = FastAPI(title="Real-Time Face Detection AI Demo")
@@ -108,62 +109,45 @@ async def detect_video(background_tasks: BackgroundTasks, file: UploadFile = Fil
     
     return FileResponse(output_path, media_type="video/mp4", filename=f"processed_{file.filename}")
 
-stream_active = False
-webcam_cap = None
-
-def generate_webcam_frames():
-    """Generator function that continuously yields webcam frames as JPEG images."""
-    global stream_active, webcam_cap
-    stream_active = True
-    
-    if webcam_cap is None or not webcam_cap.isOpened():
-        webcam_cap = cv2.VideoCapture(0)
-    
+@app.websocket("/ws/webcam")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
     try:
-        while stream_active and webcam_cap is not None and webcam_cap.isOpened():
-            ret, frame = webcam_cap.read()
-            if not ret:
-                break
+        while True:
+            # Receive base64 frame from client
+            data = await websocket.receive_text()
+            
+            # Remove the "data:image/jpeg;base64," header if present
+            if "," in data:
+                data = data.split(",")[1]
                 
+            # Decode base64 to numpy array
+            img_data = base64.b64decode(data)
+            nparr = np.frombuffer(img_data, np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+            
+            if frame is None:
+                continue
+
+            # Ensure optimal size for detection
             if frame.shape[1] > 800:
                 frame = imutils.resize(frame, width=800)
-                
+
             # Detect and draw
             detections = detector.detect_faces(frame)
             frame = detector.draw_faces(frame, detections)
-            
-            # Encode as JPEG
+
+            # Encode back to JPEG and to base64
             _, buffer = cv2.imencode('.jpg', frame)
-            frame_bytes = buffer.tobytes()
+            encoded_img = base64.b64encode(buffer).decode('utf-8')
             
-            # Generator for multipart stream
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-    finally:
-        stream_active = False
-        if webcam_cap is not None:
-            webcam_cap.release()
-            webcam_cap = None
-
-@app.post("/stop-webcam")
-async def stop_webcam_endpoint():
-    """Endpoint to explicitly trigger the webcam hardware to release."""
-    global stream_active, webcam_cap
-    stream_active = False
-    
-    if webcam_cap is not None:
-        webcam_cap.release()
-        webcam_cap = None
-        
-    return {"status": "stopped"}
-
-@app.get("/webcam-stream")
-async def webcam_stream():
-    """Streams live webcam frames with face detection."""
-    return StreamingResponse(
-        generate_webcam_frames(), 
-        media_type="multipart/x-mixed-replace; boundary=frame"
-    )
+            # Send back to client
+            await websocket.send_text(f"data:image/jpeg;base64,{encoded_img}")
+            
+    except WebSocketDisconnect:
+        print("Client disconnected from webcam stream")
+    except Exception as e:
+        print(f"WebSocket error: {str(e)}")
 
 # Mount the static frontend directory at the root /
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
