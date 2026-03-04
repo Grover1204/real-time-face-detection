@@ -20,6 +20,8 @@ Check out the fully working, live version of this project running directly in yo
 
 ## How to Run Locally
 
+
+
 You only need Python installed to run the full dashboard!
 
 1. **Clone the repository:**
@@ -40,6 +42,15 @@ uvicorn backend.app:app --reload
 
 4. **Open the studio:**
 Visit `http://localhost:8000` in your web browser.
+
+
+## Requirements & Notes
+- Python 3.8 or higher
+- A working webcam for real-time detection
+- Tested on macOS and Linux (should also work on Windows)
+- No GPU required (CPU-based OpenCV DNN)
+
+> On first run, required Caffe models will be downloaded automatically.
 
 ---
 
