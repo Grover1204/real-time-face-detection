@@ -12,6 +12,12 @@ A sleek, enterprise-grade AI Vision dashboard that runs real-time computer visio
 - **🎬 Video Processing:** Upload MP4s to batch-process frames and generate output videos.
 - **⚡ Auto-Setup:** Automatically downloads the required Caffe models on first run.
 
+## Live Demo
+Check out the fully working, live version of this project running directly in your browser:
+**[View Live Demo on Hugging Face](https://huggingface.co/spaces/Grover1204/webcame-face-detection)**
+
+---
+
 ## How to Run Locally
 
 You only need Python installed to run the full dashboard!
@@ -40,17 +46,17 @@ Visit `http://localhost:8000` in your web browser.
 ## How to Deploy (Make it Live)
 To make this live on the internet so anyone can use it, you need to host the Python backend. Some great free/cheap options:
 
-### Option 1: Render.com (Easiest)
+### Option 1: HuggingFace Spaces (Currently Deployed Here)
+1. Hosted on a Docker environment.
+2. Built automatically via the included `Dockerfile`.
+3. Runs the FastAPI and OpenCV neural network remotely!
+
+### Option 2: Render.com
 1. Sign up at [Render](https://render.com).
 2. Create a new **Web Service**.
 3. Connect this GitHub repository.
 4. Set the Build Command to: `pip install -r requirements.txt`
 5. Set the Start Command to: `uvicorn backend.app:app --host 0.0.0.0 --port $PORT`
-
-### Option 2: HuggingFace Spaces
-1. Create a new Docker Space on [Hugging Face](https://huggingface.co/spaces).
-2. Upload these files.
-3. The Space will automatically build the environment and host your UI live!
 
 ---
 
