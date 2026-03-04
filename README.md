@@ -4,19 +4,17 @@
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![FastAPI](https://img.shields.io/badge/Backend-FastAPI-teal)
 
+**👉 Live Live Demo:** https://grover1204-webcame-face-detection.hf.space
+
 A sleek, enterprise-grade AI Vision dashboard that runs real-time computer vision right in your browser. Powered by OpenCV's Deep Neural Networks (DNN) and wrapped in a beautiful, modern "Apple Liquid Glass" UI.
 
 ## Features
-- **🎥 Web Live Demo:** Stream directly from your webcam with instant bounding-box renders.
+- **🎥 Web Live Demo:** Stream directly from your webcam with instant bounding-box renders via WebSockets.
 - **🖼️ Static Image Analysis:** Upload high-res images to detect multiple faces instantly.
 - **🎬 Video Processing:** Upload MP4s to batch-process frames and generate output videos.
 - **⚡ Auto-Setup:** Automatically downloads the required Caffe models on first run.
 
-## Live Demo
-Check out the fully working, live version of this project running directly in your browser:
-**[View Live Demo on Hugging Face](https://huggingface.co/spaces/Grover1204/webcame-face-detection)**
 
----
 
 ## How to Run Locally
 
