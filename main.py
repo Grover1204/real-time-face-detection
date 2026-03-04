@@ -2,7 +2,7 @@ import cv2
 import argparse
 import sys
 import imutils
-from face_detector import FaceDetector
+from backend.detector import FaceDetector
 from object_detector import ObjectDetector
 from utils import FPS, draw_text
 

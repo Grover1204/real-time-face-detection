@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Vision Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Nav -->
+    <nav class="glass-nav">
+        <div class="logo">Webcam Face Detection</div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#lab">Web Live Demo</a></li>
+            <li><a href="#info">Architecture</a></li>
+        </ul>
+    </nav>
+
+    <!-- Page 1: Home -->
+    <section id="home" class="page-section hero-section">
+        <div class="map-bg"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Real-Time Face Detection AI</h1>
+            <p class="hero-subtitle">Instantly analyze faces using advanced, high-speed computer vision.</p>
+
+            <div class="stats-container">
+                <div class="stat-card glass">
+                    <div class="stat-icon">⚡</div>
+                    <span>Real-time processing</span>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon">⏱️</div>
+                    <span>Low latency inference</span>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon">👁️</div>
+                    <span>OpenCV powered detection</span>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon">📷</div>
+                    <span>Live webcam analysis</span>
+                </div>
+            </div>
+
+            <a href="#lab" class="btn primary-btn glass-btn">Try Live Detection</a>
+        </div>
+    </section>
+
+    <!-- Page 2: AI Vision Lab -->
+    <section id="lab" class="page-section lab-section">
+        <div class="section-heading">
+            <h2>Web Live Demo</h2>
+            <p>Select an input method to initiate the detection pipeline.</p>
+        </div>
+
+        <div class="lab-container">
+            <div class="input-methods">
+                <button id="btn-webcam" class="method-card glass active" onclick="setDemoMode('webcam')">
+                    <div class="method-icon">🎥</div>
+                    <h3>Camera Detection</h3>
+                    <p>Live stream analysis</p>
+                </button>
+                <button id="btn-image" class="method-card glass" onclick="setDemoMode('image')">
+                    <div class="method-icon">🖼️</div>
+                    <h3>Image Analysis</h3>
+                    <p>Static frame processing</p>
+                </button>
+                <button id="btn-video" class="method-card glass" onclick="setDemoMode('video')">
+                    <div class="method-icon">🎬</div>
+                    <h3>Video Processing</h3>
+                    <p>Batch frame detection</p>
+                </button>
+            </div>
+
+            <div class="demo-display glass">
+                <!-- Webcam Viewer -->
+                <div id="webcam-view" class="viewer active">
+                    <div class="viewer-placeholder" id="webcam-placeholder">
+                        <div class="pulse-ring"></div>
+                        <span>System Ready</span>
+                        <button class="btn action-btn mt-4" onclick="startWebcam()">Initialize Camera</button>
+                    </div>
+                    <img id="webcam-stream" class="hidden" alt="Live Stream">
+                    <button class="btn action-btn cancel-btn hidden mt-4" id="stop-webcam-btn"
+                        onclick="stopWebcam()">Terminate Stream</button>
+                </div>
+
+                <!-- Image Viewer -->
+                <div id="image-view" class="viewer hidden">
+                    <div class="upload-zone" id="image-upload-box">
+                        <input type="file" id="image-input" accept="image/*" hidden>
+                        <button class="btn action-btn" onclick="document.getElementById('image-input').click()">Select
+                            Image Matrix</button>
+                        <p class="mt-2 text-sm">JPG / PNG</p>
+                    </div>
+                    <div id="image-result" class="result-box hidden">
+                        <img id="processed-image" alt="Processed Output">
+                        <button class="btn action-btn mt-4" onclick="resetImage()">Process Another</button>
+                    </div>
+                    <div id="image-loading" class="loading-state hidden">
+                        <div class="spinner"></div>
+                        <span>Executing Inference...</span>
+                    </div>
+                </div>
+
+                <!-- Video Viewer -->
+                <div id="video-view" class="viewer hidden">
+                    <div class="upload-zone" id="video-upload-box">
+                        <input type="file" id="video-input" accept="video/mp4,video/avi" hidden>
+                        <button class="btn action-btn" onclick="document.getElementById('video-input').click()">Select
+                            Video Stream</button>
+                        <p class="mt-2 text-sm">MP4 / AVI</p>
+                    </div>
+                    <div id="video-result" class="result-box hidden">
+                        <video id="processed-video" controls autoplay loop></video>
+                        <div class="result-actions">
+                            <button class="btn action-btn mt-4" onclick="resetVideo()">Process Another</button>
+                            <a id="video-download-btn" class="btn action-btn primary-btn mt-4" href="#" download>Export
+                                Result</a>
+                        </div>
+                    </div>
+                    <div id="video-loading" class="loading-state hidden">
+                        <div class="spinner"></div>
+                        <span>Processing Tensor Graph...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Page 3: Information -->
+    <section id="info" class="page-section info-section">
+        <div class="info-stack">
+            <!-- Box 1 -->
+            <div class="info-card glass">
+                <h3>How the System Works</h3>
+                <div class="pipeline-flow">
+                    <div class="flow-item">Input Intake <br><small>Camera/Image/Video</small></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">Frame Parsing <br><small>Blob Construction</small></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">DNN Inference <br><small>OpenCV Spatial Extractor</small></div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">Live Rendering <br><small>Bounding Box Generation</small></div>
+                </div>
+                <p class="card-desc">The FastAPI backend ingests binary encoded frames, feeding them through an
+                    accelerated OpenCV Deep Neural Network. The spatial dimensions of human faces are extracted, labeled
+                    with confidence scores, and rasterized as bounding boxes in real-time before streaming back to the
+                    client.</p>
+            </div>
+
+            <!-- Box 2 -->
+            <div class="info-card glass">
+                <h3>Real World Use Cases</h3>
+                <ul class="use-case-list">
+                    <li><strong>Security Cameras:</strong> Automated intrusion detection and access control point
+                        monitoring.</li>
+                    <li><strong>Attendance Systems:</strong> Frictionless employee flow and automated time-tracking.
+                    </li>
+                    <li><strong>Retail Analytics:</strong> Demographic mapping, dwell time calculations, and foot
+                        traffic analysis.</li>
+                    <li><strong>Smart Surveillance:</strong> Replacing raw footage monitoring with intelligent
+                        event-driven alerts.</li>
+                    <li><strong>Human-Computer Interaction:</strong> Gaze tracking, gesture control, and adaptive UI
+                        adjustments.</li>
+                    <li><strong>Robotics Vision:</strong> Enabling autonomous agents to perceive and react to biological
+                        presence safely.</li>
+                </ul>
+            </div>
+
+            <!-- Box 3 -->
+            <div class="info-card glass">
+                <h3>Technical Architecture</h3>
+                <p class="card-desc"><strong>Frontend:</strong> Pure Vanilla JS wrapped in heavily optimized CSS
+                    variable-driven Glassmorphism to simulate a native desktop GUI with minimal overhead.</p>
+                <p class="card-desc"><strong>Backend API:</strong> Built on FastAPI utilizing asynchronous I/O and
+                    standard multipart form parsing to decouple high-throughput media streams from blocking processes.
+                </p>
+                <p class="card-desc"><strong>OpenCV Processing:</strong> Uses a specialized Caffe Model initialized in
+                    global memory to bypass model load latency during rapid API requests. Anti-aliasing scaling
+                    algorithms (<code>INTER_AREA</code>) govern frame injection.</p>
+            </div>
+
+            <!-- Box 4 -->
+            <div class="info-card glass">
+                <h3>Future Improvements</h3>
+                <ul class="use-case-list">
+                    <li><strong>Face Recognition:</strong> Mapping spatial matrices to individual identity databases.
+                    </li>
+                    <li><strong>Emotion Detection:</strong> Micro-expression analysis to gauge user
+                        satisfaction/frustration.</li>
+                    <li><strong>YOLO Object Detection:</strong> Expanding the tensor scope from human constraints to
+                        multi-class arbitrary objects.</li>
+                    <li><strong>Multi-camera Monitoring:</strong> Distributed thread-pool clustering for massive
+                        physical node expansion.</li>
+                    <li><strong>Edge AI Deployment:</strong> Porting the python logic directly to compiled C++ for
+                        edge-deployed SOCs.</li>
+                    <li><strong>Security Alert Systems:</strong> Triggering WebSocket/SMS webhook broadcasts upon
+                        positive confidence yields.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Floating Footer -->
+        <div class="floating-footer glass">
+            <span>Architected by Senior AI Engineer</span>
+            <div class="footer-links">
+                <a href="https://github.com/Grover1204/real-time-face-detection" target="_blank">GitHub Repository</a>
+                <a href="#" target="_blank">LinkedIn Profile</a>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

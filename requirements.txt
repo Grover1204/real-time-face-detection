@@ -1,3 +1,6 @@
 opencv-python
 numpy
 imutils
+fastapi
+uvicorn
+python-multipart
