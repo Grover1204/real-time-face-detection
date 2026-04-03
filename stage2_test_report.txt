@@ -1,0 +1,6 @@
+Stage 2 Alignment Test Summary
+
+Total Images: 8
+Successful Alignments: 7
+Failed Alignments: 1
+Average Rotation Angle: 8.61°

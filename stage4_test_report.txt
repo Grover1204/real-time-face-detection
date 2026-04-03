@@ -1,0 +1,5 @@
+Stage 4 Basel Template Mesh Test Summary
+
+Total Images: 8
+Successful Meshes Generated: 7
+Failed Pipelines: 1

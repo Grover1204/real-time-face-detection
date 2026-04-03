@@ -1,0 +1,6 @@
+Stage 1 Test Summary
+
+Total Images: 8
+Successful Face Detections: 7
+Failed Detections: 1
+Multiple Face Cases: 1
