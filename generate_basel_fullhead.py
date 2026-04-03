@@ -1,6 +1,9 @@
 import numpy as np
 import open3d as o3d
-from mediapipe.python.solutions.face_mesh_connections import FACEMESH_TESSELATION, FACEMESH_FACE_OVAL
+from mediapipe.python.solutions.face_mesh_connections import (
+    FACEMESH_TESSELATION,
+    FACEMESH_FACE_OVAL,
+)
 
 # Dummy perfectly symmetrical template face points (canonical)
 # Actually, let's load the template_face.obj we have
@@ -23,7 +26,7 @@ for edge in FACEMESH_TESSELATION:
     if edge[0] < 468 and edge[1] < 468:
         adj[edge[0]].add(edge[1])
         adj[edge[1]].add(edge[0])
-        
+
 triangles = set()
 for i in range(468):
     for j in adj[i]:

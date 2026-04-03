@@ -1,6 +1,9 @@
 import numpy as np
 import open3d as o3d
-from mediapipe.python.solutions.face_mesh_connections import FACEMESH_TESSELATION, FACEMESH_FACE_OVAL
+from mediapipe.python.solutions.face_mesh_connections import (
+    FACEMESH_TESSELATION,
+    FACEMESH_FACE_OVAL,
+)
 
 landmarks = np.load("outputs/1_points.npy")
 
@@ -31,7 +34,7 @@ for edge in FACEMESH_TESSELATION:
     if edge[0] < 468 and edge[1] < 468:
         adj[edge[0]].add(edge[1])
         adj[edge[1]].add(edge[0])
-        
+
 triangles = set()
 for i in range(468):
     for j in adj[i]:
@@ -45,7 +48,7 @@ triangles = list(triangles)
 for edge in FACEMESH_FACE_OVAL:
     v1, v2 = edge
     triangles.append((v1, v2, back_idx))
-    
+
 mesh = o3d.geometry.TriangleMesh()
 mesh.vertices = o3d.utility.Vector3dVector(vertices)
 mesh.triangles = o3d.utility.Vector3iVector(np.asarray(triangles, dtype=np.int32))
